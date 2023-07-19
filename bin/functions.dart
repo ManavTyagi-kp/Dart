@@ -1,4 +1,4 @@
-void main(List<String> arguments){
+void main(List<String> arguments) async{
     var list = [1, 6, 3];
     list.forEach(Functions().printElement);
 
@@ -42,7 +42,7 @@ void main(List<String> arguments){
     Function x;
 
     // Comparing top-level functions.
-    x=foo;
+    x = foo;
     assert(foo == x);
 
     // Comparing instance methods.
@@ -59,6 +59,116 @@ void main(List<String> arguments){
     // so they're unequal
     assert(v.baz != w.baz);
 
+    // An iterable can be used in a for-in loop, Example:
+    final iterableList = GenFun(['One', 'Two', 'Three']);
+
+    for(final str in iterableList){
+      print(str);
+    }
+
+    final numbers = getRange(1,10)
+    .where((value) => value % 2 == 0);
+
+    final recursiveNum = getrangeRecursive(1, 10);
+
+    numbers.forEach((element) => print('Recursive $element'));
+
+    numbers.forEach((element) => print('Non Recursive: $element'));
+
+    // printing values fetched from the Async function
+    var variable = heavyTask(10);
+    print(variable);
+    try {
+      fetchVal(1, 10).listen((element) => print('Async Fun: $element'));
+      } catch(e){
+          print(e);
+      }
+
+}
+
+// Generator Functions
+// Iterable, Iterator, Yield and yield*
+
+
+// ____________________________________________________
+// |         |                  |                      |
+// |         |  Single value    |  Zero or more values |
+// |_________|__________________|______________________|
+// |         |                  |                      |
+// |  Sync   |  int             |   Iterable<int>      |
+// |_________|__________________|______________________|
+// |         |                  |                      |
+// |  Async  |  Future<int>     |   Stream<int>        |
+// |_________|__________________|______________________|
+
+// ****Synchronous:****
+//  A synchronous function produces output on demand immediately
+class GenFun extends Iterable<String> {
+  GenFun(this.generatives);
+  final List<String> generatives;
+
+  Iterator<String> get iterator =>
+      generatives.iterator;
+}
+
+// Iterables with sync* and yield
+// sync* is used to tell dart that the function is going
+// to produce multiple values on demand
+Iterable<int> getRange(int start, int finish) sync*{
+  for(int i = start; i<= finish; i++){
+    yield i;
+  }
+  
+}
+
+// A recursive function to get range
+// using yield in a recursive fuunction will reduce efficienct
+// as the code will yield 9 times in the first go if start is
+// 1 and finish is 10, it will yield 8 times in the second run,
+// 7 times in the third and so on
+// Using iterable: You will have to loop over the iterable returned
+// by the inner call to getRange, just so you can yield values one
+// at a time.
+
+// To tackle this:
+// "yield*" is used. "yield*" can yield a whole iterable one value
+// at a time. No loop required
+Iterable<int> getrangeRecursive(int start, int finish) sync*{
+  if(start <= finish){
+    yield start;
+
+    // Without "yield*":
+    // for(final val in getrangeRecursive(start + 1, finish)) {
+    //   yield val;
+    // }
+
+    // With "yield*":
+    yield* getrangeRecursive(start + 1, finish);
+  }
+}
+
+// ***Asynchronous***
+// Async generators are similar to synchronous generators
+// the only difference being that they return Stream<?>
+// and they can yield values when they decide they're ready
+// For Example: If you make a function to that runs a loop to add until
+// a very large number is not acheived.
+// if you needed just one number, you could do it using Future and then
+// But, if you needed multiple numbers in a stream. That's exactly where
+// you can use Async generators.
+Future<int> heavyTask(int val) {
+  var count = 1;
+  for(var i = 0; i <= val; i++){
+    count += 1;
+  }
+  return Future.value(count);
+}
+
+Stream<int> fetchVal(int start, int finish) async* {
+  for(int i = start; i <= finish; i++){
+    print(i);
+    yield await heavyTask(i);
+  }
 }
 
 // Testing Functions for Equality
@@ -107,5 +217,6 @@ class Functions{
 
 // Lexical Closures
 Function makeAdder(int addBy){
+  //print(addBy+1);
   return (int i) => addBy + i;
 }
