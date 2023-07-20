@@ -1,3 +1,4 @@
+// learning functions in dart
 void main(List<String> arguments) async{
     var list = [1, 6, 3];
     list.forEach(Functions().printElement);
