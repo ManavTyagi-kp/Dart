@@ -23,7 +23,7 @@ class Vehicle{
   }
 }
 
-interface class Test extends Toy{
+interface class Test implements Toy{
   @override
   String play(String toy) {
     // TODO: implement play
