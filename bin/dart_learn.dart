@@ -107,7 +107,6 @@ class FactoryConst{
     // Factory constructors are like static methods(???) and so you don't have access to "this"
     // There cannot be a factory and a "normal" constructor with the same name.
 
-  // ignore: unused_field
   var data = <int>[1,2,3,4];
   //static final _objects = List<BigObject>.add("obj", 5, ${data})();
   static final List<BigObject> objects = [];
