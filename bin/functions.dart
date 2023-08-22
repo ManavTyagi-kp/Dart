@@ -1,95 +1,107 @@
 // learning functions in dart
-void main(List<String> arguments) async{
-    var list = [1, 6, 3];
-    list.forEach(Functions().printElement);
+import 'package:test/test.dart';
 
-    var greeting = Functions().sayHello;
-    greeting();
+void main(List<String> arguments) async {
+  var list = [1, 6, 3];
+  list.forEach(Functions().printElement);
 
-    var add2 = makeAdder(2);
-    var add4 = makeAdder(4);
+  var greeting = Functions().sayHello;
+  greeting();
 
-    assert(add2(3) == 5, 'Value does not match');
-    assert(add4(3) == 7);
+  var add2 = makeAdder(2);
+  var add4 = makeAdder(4);
 
-    print(add4(3));
+  assert(add2(3) == 5, 'Value does not match');
+  assert(add4(3) == 7);
 
-    // CLOSURES
-    // Def1: A closure is a function that has access to parent scope, even when the scope has closed
-    var str = "I'm studying dart";
-    //also an example of Lambda Function
-    showStr(){
-      str = "I'm practising dart";
-      print(str);
+  print(add4(3));
+
+  // CLOSURES
+  // Def1: A closure is a function that has access to parent scope, even when the scope has closed
+  var str = "I'm studying dart";
+  //also an example of Lambda Function
+  showStr() {
+    str = "I'm practising dart";
+    print(str);
+  }
+
+  showStr();
+
+  // Def2: A closure is a function object that has access to variables in its lexical scope,
+  // even when the function is used outside of its original scope
+  closureExample2() {
+    var msg = 'This a closure function';
+    say() {
+      msg = 'This is an inner closure function';
+      print(msg);
     }
 
-    showStr();
+    return say;
+  }
 
-    // Def2: A closure is a function object that has access to variables in its lexical scope,
-    // even when the function is used outside of its original scope
-    closureExample2(){
-      var msg = 'This a closure function';
-      say(){
-        msg = 'This is an inner closure function';
-        print(msg);
-      }
-      return say;
-    }
+  var speak = closureExample2();
+  speak();
 
-    var speak = closureExample2();
-    speak();
+  // Testing Functions for Equality
+  Function x;
 
-    // Testing Functions for Equality
-    Function x;
+  // Comparing top-level functions.
+  x = foo;
+  assert(foo == x);
 
-    // Comparing top-level functions.
-    x = foo;
-    assert(foo == x);
+  // Comparing instance methods.
+  var v = A(); // Instance #1 of A
+  var w = A(); // Instance #2 of A
+  var y = w;
+  x = w.baz;
 
-    // Comparing instance methods.
-    var v = A(); // Instance #1 of A
-    var w = A(); // Instance #2 of A
-    var y = w;
-    x = w.baz;
+  // These closures refer to the same instance (#2),
+  // so they're equal.
+  assert(y.baz == x);
 
-    // These closures refer to the same instance (#2),
-    // so they're equal.
-    assert(y.baz == x);
+  // These closures refer to different instances,
+  // so they're unequal
+  assert(v.baz != w.baz);
 
-    // These closures refer to different instances,
-    // so they're unequal
-    assert(v.baz != w.baz);
+  // An iterable can be used in a for-in loop, Example:
+  final iterableList = GenFun(['One', 'Two', 'Three']);
 
-    // An iterable can be used in a for-in loop, Example:
-    final iterableList = GenFun(['One', 'Two', 'Three']);
+  for (final str in iterableList) {
+    print(str);
+  }
 
-    for(final str in iterableList){
-      print(str);
-    }
+  final numbers = getRange(1, 10).where((value) => value % 2 == 0);
 
-    final numbers = getRange(1,10)
-    .where((value) => value % 2 == 0);
+  final recursiveNum = getrangeRecursive(1, 10);
 
-    final recursiveNum = getrangeRecursive(1, 10);
+  numbers.forEach((element) => print('Recursive $element'));
 
-    numbers.forEach((element) => print('Recursive $element'));
+  numbers.forEach((element) => print('Non Recursive: $element'));
 
-    numbers.forEach((element) => print('Non Recursive: $element'));
+  // printing values fetched from the Async function
+  var variable = heavyTask(10);
+  print(variable);
+  List<int> listener = [];
+  var subscription = fetchVal(1, 10).listen((event) {
+    listener.add(event);
+    print('Listener: $listener');
+  });
+  subscription.onDone(() {
+    print(listener.toList());
+  });
+  // var futureListener = await Future<List<int>>.value(listener);
+  // print(futureListener);
 
-    // printing values fetched from the Async function
-    var variable = heavyTask(10);
-    print(variable);
-    try {
-      fetchVal(1, 10).listen((element) => print('Async Fun: $element'));
-      } catch(e){
-          print(e);
-      }
-
+  // Future.delayed(Duration(seconds: 2), () {
+  //   print(listener.toList());
+  // });
+  // print(await listener);
+  // print('listener: ${listener.toList()}');
+  // fetchVal(1, 10).listen((element) => print('Async Fun: $element'));
 }
 
 // Generator Functions
 // Iterable, Iterator, Yield and yield*
-
 
 // ____________________________________________________
 // |         |                  |                      |
@@ -108,18 +120,16 @@ class GenFun extends Iterable<String> {
   GenFun(this.generatives);
   final List<String> generatives;
 
-  Iterator<String> get iterator =>
-      generatives.iterator;
+  Iterator<String> get iterator => generatives.iterator;
 }
 
 // Iterables with sync* and yield
 // sync* is used to tell dart that the function is going
 // to produce multiple values on demand
-Iterable<int> getRange(int start, int finish) sync*{
-  for(int i = start; i<= finish; i++){
+Iterable<int> getRange(int start, int finish) sync* {
+  for (int i = start; i <= finish; i++) {
     yield i;
   }
-  
 }
 
 // A recursive function to get range
@@ -134,8 +144,8 @@ Iterable<int> getRange(int start, int finish) sync*{
 // To tackle this:
 // "yield*" is used. "yield*" can yield a whole iterable one value
 // at a time. No loop required
-Iterable<int> getrangeRecursive(int start, int finish) sync*{
-  if(start <= finish){
+Iterable<int> getrangeRecursive(int start, int finish) sync* {
+  if (start <= finish) {
     yield start;
 
     // Without "yield*":
@@ -159,16 +169,16 @@ Iterable<int> getrangeRecursive(int start, int finish) sync*{
 // you can use Async generators.
 Future<int> heavyTask(int val) {
   var count = 1;
-  for(var i = 0; i <= val; i++){
+  for (var i = 0; i <= val; i++) {
     count += 1;
   }
   return Future.value(count);
 }
 
 Stream<int> fetchVal(int start, int finish) async* {
-  for(int i = start; i <= finish; i++){
+  for (int i = start; i <= finish; i++) {
     print(i);
-    yield await heavyTask(i);
+    yield i;
   }
 }
 
@@ -181,29 +191,28 @@ class A {
 }
 
 // Examples of FUNCTIONS
-class Functions{
-
+class Functions {
   // Named parameters
   // Named parameters are optional unless they’re explicitly marked as required.
-  // When defining a function, use {param1, param2, …} to specify named parameters. 
-  // If you don’t provide a default value or mark a named parameter as required, 
+  // When defining a function, use {param1, param2, …} to specify named parameters.
+  // If you don’t provide a default value or mark a named parameter as required,
   // their types must be nullable as their default value will be null
-  void namedParam({required String? name, required int? age, int? roll}){
+  void namedParam({required String? name, required int? age, int? roll}) {
     print('$name $age $roll');
   }
 
   // Optional Positional Params
   // Wrapping a set of function parameters in []
   // marks them as optional positional parameters.
-  // If you don’t provide a default value, 
+  // If you don’t provide a default value,
   // their types must be nullable as their default value will be null:
-  void optionalPositionalParam(String name, int age, [int? roll]){
+  void optionalPositionalParam(String name, int age, [int? roll]) {
     print('Oprional Param: $name $age $roll');
   }
 
   // Functions as first-class objects
   // You can pass a function as a parameter to another function
-  void printElement(int element){
+  void printElement(int element) {
     print(element);
   }
 
@@ -211,13 +220,11 @@ class Functions{
   void sayHello() {
     print("Hello!");
   }
-  // define in main function outside class to make it work 
-  
+  // define in main function outside class to make it work
 }
 
-
 // Lexical Closures
-Function makeAdder(int addBy){
+Function makeAdder(int addBy) {
   //print(addBy+1);
   return (int i) => addBy + i;
 }
